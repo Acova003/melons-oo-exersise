@@ -7,7 +7,11 @@ class AbstractMelonOrder(object):
     def get_total(self):
         """Calculate price."""
 
-        base_price = 5
+        if self.species == "Christmas melons":
+            base_price = round(5 * 1.5)
+        else:
+            base_price = 5
+
         total = (1 + self.tax) * self.qty * base_price
         return total
 
@@ -26,34 +30,35 @@ class AbstractMelonOrder(object):
 
 class DomesticMelonOrder(AbstractMelonOrder):
     """A domestic (in the US) melon order."""
+    
+    order_type = "domestic"
+    tax = 0.08
+    country_code = "USA"
 
     def __init__(self, species, qty):
         super(DomesticMelonOrder, self).__init__(species, qty)
-        self.tax()
-        self.country_code = "USA"
-
-    def tax(self):
-        """Initialize melon order attributes"""
-
-        self.order_type = "domestic"
-        self.tax = 0.08
 
 
 class InternationalMelonOrder(AbstractMelonOrder):
     """An international (non-US) melon order."""
+    
+    order_type = "international"
+    tax = 0.17
+    fee = 3
 
     def __init__(self, country_code, species, qty):
         super(InternationalMelonOrder, self).__init__(species, qty)
         self.country_code = country_code
-        self.tax()
 
-    def tax(self):
-        """Initialize melon order attributes"""
-
-        self.order_type = "international"
-        self.tax = 0.17
 
     def get_country_code(self):
         """Return the country code."""
 
         return self.country_code
+
+    def get_total(self):
+        total = super(InternationalMelonOrder, self).get_total()
+        if self.qty < 10:
+            total += self.fee  # refers to class attribute using self
+        
+        return total
